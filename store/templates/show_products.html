@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+    <header>
+        <title>Products</title>
+    </header>
+    <body>
+        <center>
+            <h1 style="color: rgb(255, 255, 255);">Products</h1>
+            <br>
+            <table class="table table-dark table-striped">
+                <tr>
+                  <th style="color: rgb(0, 255, 255); width: 80px;">Name</th>
+                  <th style="color: rgb(0, 255, 255); width: 80px;">Price</th>
+                  <th style="color: rgb(0, 255, 255); width: 80px;">Inventory</th>
+                  <th style="color: rgb(0, 255, 255); width: 80px;">Description</th>
+                </tr>
+                {% for p in prds %}
+                    <tr>
+                        <td style="color: rgb(255, 255, 255); width: 80px;">{{ p.title }}</td>
+                        <td style="color: rgb(255, 255, 255); width: 170px;">{{p.price}}</td>
+                        <td style="color: rgb(255, 255, 255); width: 170px;">{{p.inventory}}</td>
+                        <td style="color: rgb(255, 255, 255); width: 170px;">{{p.description}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <!--{{prds}}
+            <br>
+            Current Page : {{prds.number}}
+            <br>
+            Number of Pages : {{prds.paginator.num_pages}}
+            Page {{prds.number}} of {{prds.paginator.num_pages}}
+            <hr>
+            <li class="page-item disabled"><a class="page-link"  href="#">Page {{prds.number}} of {{prds.paginator.num_pages}}</a></li>
+            <br>-->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                {% if prds.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1">&laquoFirst page</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{prds.previous_page_number}}">Previous</a></li>
+                {% endif %}
+                
+                {% for i in nums %}
+                    <li class="page-item"><a class="page-link" href="?page={{forloop.counter}}">{{forloop.counter}}</a></li>
+                {% endfor %}
+    
+                {% if prds.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{prds.next_page_number}}">Next</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{prds.paginator.num_pages}}">Last page&raquo</a></li>
+                {% endif %}
+                </ul>
+            </nav>
+        </center>
+    </body>
+{% endblock %}
