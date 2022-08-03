@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.html import format_html
-from store.models import *
+from .models import *
 
 
 @admin.register(Collection)
@@ -25,17 +25,17 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "slug", "description", "price", "inventory", "collection", "inventory_status", "last_update", "created_at"]
+    list_display = ["id", "title", "price", "inventory", "collection", "inventory_status", "last_update", "created_at"]
     list_display_links = ["id"]
-    list_editable = ["price"]
-    search_fields = ["collection"]
+    list_editable = ["price", "inventory"]
+    search_fields = ["id", "collection", "title"]
     actions = ["clear_inventory"]
     list_select_related = ["collection"]
     list_per_page: int = 10
     list_max_show_all: int = 500
     
     # create form
-    fields = ["title", "slug", "description", "price", "inventory", "collection",] 
+    fields = ["title", "product_image", "slug", "description", "price", "inventory", "collection"] 
     exclude = ["promotion"]
     # readonly_fields = ["inventory"]
     prepopulated_fields = {

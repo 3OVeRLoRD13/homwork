@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <header>
+        <title>Edit Profile</title>
+    </header>
+
+    <body>
+        <div class="shadow p-4 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
+            <h1>Edit Profile</h1>
+            <div class="form-group">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ user_form | crispy }}
+                    {{ profile_form | crispy }}
+                    <br>
+                    <button class="btn btn-success">Save Changes</button>
+                    <a class="btn btn-danger" href="{% url 'profile' %}" role="button">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </body>
+{% endblock %}

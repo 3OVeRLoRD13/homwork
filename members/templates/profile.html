@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+    <header>
+        <title>Profile</title>
+    </header>
+    <body>
+        <center>
+            <div class="card bg-dark" style="width: 28rem;">
+                <center>
+                    <br>
+                    <img class="rounded-circle account-img" src="{{user.userprofile.profile_image.url}}" width="100" height="100">
+                </center>
+                <div class="card-body">
+                  <h5 style="color: rgb(255, 255, 255);" class="card-title">@{{user.username}}</h5>
+                  <p style="color: rgb(255, 255, 255);" class="card-text">{{user.userprofile.bio}}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <p style="color: rgb(255, 255, 255);" class="card-text">Name : {{user.first_name}} {{user.last_name}}</p>
+                    <p style="color: rgb(255, 255, 255);" class="card-text">Birth date : {{user.userprofile.birth_date}}</p>
+                    <p style="color: rgb(255, 255, 255);" class="card-text">Email : {{user.email}}</p>
+                    <p style="color: rgb(255, 255, 255);" class="card-text">Joined us : {{user.date_joined}} ({{user.userprofile.get_created_at_date}})</p>
+                </ul>
+                <div class="card-body">
+                  <a class="btn btn-primary btn-block" href="{% url 'edit_profile' %}">Edit Profile</a>
+                  <a class="btn btn-primary btn-block" href="{% url 'logout' %}">Logout</a>
+                </div>
+              </div>
+        </center>
+    </body>
+{% endblock %}

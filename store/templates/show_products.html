@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
     <header>
         <title>Products</title>
@@ -7,22 +8,23 @@
         <center>
             <h1 style="color: rgb(255, 255, 255);">Products</h1>
             <br>
-            <table class="table table-dark table-striped">
-                <tr>
-                  <th style="color: rgb(0, 255, 255); width: 80px;">Name</th>
-                  <th style="color: rgb(0, 255, 255); width: 80px;">Price</th>
-                  <th style="color: rgb(0, 255, 255); width: 80px;">Inventory</th>
-                  <th style="color: rgb(0, 255, 255); width: 80px;">Description</th>
-                </tr>
-                {% for p in prds %}
-                    <tr>
-                        <td style="color: rgb(255, 255, 255); width: 80px;">{{ p.title }}</td>
-                        <td style="color: rgb(255, 255, 255); width: 170px;">{{p.price}}</td>
-                        <td style="color: rgb(255, 255, 255); width: 170px;">{{p.inventory}}</td>
-                        <td style="color: rgb(255, 255, 255); width: 170px;">{{p.description}}</td>
-                    </tr>
-                {% endfor %}
-            </table>
+        </center>
+        <div class="row row-cols-1 row-cols-md-3 bg-body">
+            {% for p in prds %}
+            <div class="col mb-4">
+              <div class="card bg-dark">
+                <img src="{{p.product_image.url}}" class="card-img-top">
+                <div class="card-body">
+                  <h4 class="card-title" style="color: rgb(255, 255, 255);">{{ p.title }}</h4>
+                  <p class="card-text" style="color: rgb(255, 255, 255);">{{p.price}}$</p>
+                  <p class="card-text" style="color: rgb(255, 255, 255);">{{p.total_likes}} Likes</p>
+                  <a href="{% url 'show_detail_of_product' p.pk prds.number%}" class="card-link" name="p_id" value="{{p.id}}">More</a>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+        <center>
             <!--{{prds}}
             <br>
             Current Page : {{prds.number}}
@@ -32,6 +34,7 @@
             <hr>
             <li class="page-item disabled"><a class="page-link"  href="#">Page {{prds.number}} of {{prds.paginator.num_pages}}</a></li>
             <br>-->
+            <br>
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
                 {% if prds.has_previous %}
@@ -49,6 +52,7 @@
                 {% endif %}
                 </ul>
             </nav>
+            <br>
         </center>
     </body>
 {% endblock %}
