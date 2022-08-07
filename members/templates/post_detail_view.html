@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+    <header>
+        <title>Social</title>
+    </header>
+
+    <body>
+        <center>
+            {% if user.is_authenticated %}
+                <h1 style="color: rgb(255, 255, 255);">Social</h1>
+                <hr style="background-color: rgb(255, 255, 255);">
+                <p style="color: rgb(255, 255, 255);">{{detail_post.author.username}}</p>
+                <p style="color: rgb(255, 255, 255);">{{detail_post.text}}</p>
+                <small style="color: rgb(255, 255, 255);">{{detail_post.get_created_at_date}}</small>
+                <br>
+                <br>
+                {% if object.author == user %}
+                    <a class="btn btn-primary btn-sm mt-1" href="{% url 'post_edit_view' object.id %}">Edit</a>
+                    <a class="btn btn-danger btn-sm mt-1" href="{% url 'post_delete_view' object.id %}">Delete</a>
+                {% endif %}
+                <hr style="background-color: rgb(255, 255, 255);">
+            {% else %}
+                <h1 style="color: rgb(255, 255, 255);"><a class="card-link" href="{%url 'login'%}">Login</a> to see this page</h1>
+            {% endif %}
+        </center>
+    </body>
+{% endblock %}

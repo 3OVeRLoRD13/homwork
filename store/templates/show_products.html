@@ -13,12 +13,12 @@
             {% for p in prds %}
             <div class="col mb-4">
               <div class="card bg-dark">
-                <img src="{{p.product_image.url}}" class="card-img-top">
+                <img src="{{ p.product_image.url }}" class="card-img-top">
                 <div class="card-body">
                   <h4 class="card-title" style="color: rgb(255, 255, 255);">{{ p.title }}</h4>
                   <p class="card-text" style="color: rgb(255, 255, 255);">{{p.price}}$</p>
                   <p class="card-text" style="color: rgb(255, 255, 255);">{{p.total_likes}} Likes</p>
-                  <a href="{% url 'show_detail_of_product' p.pk prds.number%}" class="card-link" name="p_id" value="{{p.id}}">More</a>
+                  <a href="{% url 'show_detail_of_product' p.pk prds.number %}" class="card-link" name="p_id" value="{{ p.id }}">More</a>
                 </div>
               </div>
             </div>

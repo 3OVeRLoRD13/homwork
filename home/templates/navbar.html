@@ -13,11 +13,18 @@
         <a class="nav-link active" aria-current="page" href="{% url 'ShowProducts' %}">Products</a>
       </li>
       {% if user.is_authenticated %}
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'social' %}">Social</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url 'personal_page' %}">Personal Page</a>
+      </li>
       <li class="nav-item dropdown">
         <a class="nav-link active dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
           Welcome {{user.username}} !
         </a>
         <div class="dropdown-menu bg-dark">
+          <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'create_post' %}">New Post</a>
           <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'profile' %}">Profile</a>
           <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'logout' %}">Logout</a>
         </div>
@@ -35,4 +42,11 @@
       {% endif %}
     </ul>
   </div>
+  <nav class="navbar navbar-dark bg-dark">
+    <form class="form-inline" method="post" action="{% url 'search_users' %}">
+      {% csrf_token %}
+      <input class="form-control mr-sm-2" name="searched" type="search" placeholder="Type usename" aria-label="Search">
+      <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+    </form>
+  </nav>
 </nav>

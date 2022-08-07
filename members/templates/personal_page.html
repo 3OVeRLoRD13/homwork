@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+    <header>
+        <title>Personal Page</title>
+    </header>
+
+    <body>
+        <center>
+            {% if user.is_authenticated %}
+                <h1 style="color: rgb(255, 255, 255);">Personal Page</h1>
+                <hr style="background-color: rgb(255, 255, 255);">
+                {% for post in posts %}
+                    {% if user.id == post.author.id %}
+                        <p style="color: rgb(255, 255, 255);">{{post.author.username}}</p>
+                        <p style="color: rgb(255, 255, 255);">{{post.text}}</p>
+                        <small style="color: rgb(255, 255, 255);">{{post.get_created_at_date}}</small>
+                        <hr style="background-color: rgb(255, 255, 255);">
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <h1 style="color: rgb(255, 255, 255);"><a class="card-link" href="{%url 'login'%}">Login</a> to see this page</h1>
+            {% endif %}
+        </center>
+    </body>
+{% endblock %}
