@@ -1,24 +1,27 @@
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib import messages
 from django.urls import reverse_lazy
-from .forms import RegisterUserForm, UserForm, ProfileForm
-from django.views.generic import TemplateView
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Post
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.views.generic import TemplateView
+from django.contrib.auth import views as auth_views
+from .forms import RegisterUserForm, UserForm, ProfileForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
+# Search existing users and show them in site -----------------------------------------------
 def search_users(request):
     if request.method == "POST":
         searched = request.POST['searched']
         searched_users = User.objects.filter(username__contains=searched)
-        return render(request, 'search_users.html', {'searched':searched, 'searched_users':searched_users})
+        return render(request, 'members/search_users.html', {'searched': searched, 'searched_users': searched_users})
     else:
-        return render(request, 'search_users.html', {})
+        return render(request, 'members/search_users.html', {})
 
 
+# Login user via function based view --------------------------------------------------------
 def login_user(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -32,15 +35,17 @@ def login_user(request):
             messages.success(request, "There was an Error Logging In, Try Again !")
             return redirect('login')
     else:
-        return render(request, 'login.html', {})
+        return render(request, 'members/login.html', {})
 
 
+# Logout user via function based view -------------------------------------------------------
 def logout_user(request):
     logout(request)
     messages.success(request, "You were Logged out Successfully !")
     return redirect('home')
 
 
+# Logout user via function based view -------------------------------------------------------
 def register_user(request):
     if request.method == "POST":
         form = RegisterUserForm(request.POST)
@@ -54,17 +59,28 @@ def register_user(request):
             return redirect('profile')
     else:
         form = RegisterUserForm()
-    return render(request, 'register_user.html', {'form': form, })
+    return render(request, 'members/register_user.html', {'form': form, })
 
 
+# Change user password via class based view (Not reset password) ---------------------------
+class PasswordsChangeView(auth_views.PasswordChangeView):
+    template_name = 'members/change_password.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "Your Password Was Changed Successfully !")
+        return reverse_lazy('profile')
+
+
+# View user profile via class based view
 class ProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'profile.html'
+    template_name = 'members/profile.html'
 
 
+# Edit user profile via class based view ---------------------------------------------------
 class ProfileUpdateView(LoginRequiredMixin, TemplateView):
     user_form = UserForm
     profile_form = ProfileForm
-    template_name = 'edit_profile.html'
+    template_name = 'members/edit_profile.html'
     success_url = reverse_lazy('profile')
 
     def post(self, request):
@@ -77,7 +93,7 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            messages.success(request, "Your profile was successfully updated !")
+            messages.success(request, "Your Profile Was Updated Successfully !")
             return redirect(reverse_lazy('profile'))
 
         context = self.get_context_data(user_form=user_form, profile_form=profile_form)
@@ -91,40 +107,57 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
         return self.request.user
 
 
+# View user personal page via class based view ---------------------------------------------
 class PersonalPageListView(LoginRequiredMixin, ListView):
     model = Post
-    template_name = 'personal_page.html'
+    template_name = 'members/personal_page.html'
     context_object_name = 'posts'
-    ordering = ['-created_at']
+    paginate_by = 5
+
+    def get_queryset(self):
+        user_personal_page = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Post.objects.filter(author=user_personal_page).order_by('-created_at')
 
 
+# Show user posts via class based view -----------------------------------------------------
 class PostListView(ListView):
     model = Post
-    template_name = 'social.html'
+    template_name = 'members/social.html'
     context_object_name = 'posts'
     ordering = ['-created_at']
+    paginate_by = 5
 
 
+# View detail of posts via class based view ------------------------------------------------
 class PostDetailView(DetailView):
     model = Post
-    template_name = 'post_detail_view.html'
+    template_name = 'members/post_detail_view.html'
     context_object_name = 'detail_post'
 
 
+# Create posts via class based view -------------------------------------------------------
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['text']
-    template_name = 'post_form.html'
+    template_name = 'members/post_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('personal_page', args=[self.request.user.username])
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
 
+# Edit posts via class based view --------------------------------------------------------
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     fields = ['text']
-    template_name = 'post_form.html'
+    template_name = 'members/edit_post_form.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "Your Post Was Edited Successfully !")
+        return reverse_lazy('personal_page', args=[self.request.user.username])
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -136,11 +169,15 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return True
         return False
 
-# test comment
+
+# Delete posts via class based view --------------------------------------------------------
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
-    template_name = 'post_confirm_delete.html'
-    success_url = reverse_lazy('personal_page')
+    template_name = 'members/post_confirm_delete.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "Your Post Was Deleted Successfully !")
+        return reverse_lazy('personal_page', args=[self.request.user.username])
 
     def test_func(self):
         post = self.get_object()

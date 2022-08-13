@@ -38,10 +38,10 @@ class UserForm(forms.ModelForm):
         self.fields['last_name'].widget.attrs['placeholder'] = 'last_name'
 
 
-class ProfileForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):    
     class Meta:
         model = UserProfile
-        fields = ['birth_date', 'profile_image', 'bio']
+        fields = ['birth_date', 'bio', 'profile_image']
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)

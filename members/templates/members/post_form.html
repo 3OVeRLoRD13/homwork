@@ -1,0 +1,25 @@
+{% extends 'home/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <header>
+        <title>Blog Post</title>
+    </header>
+
+    <body>
+        <div class="content-section" style="color: rgb(255, 255, 255);">
+            <form method="POST">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Blog Post</legend>
+                    <div class="shadow p-4 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
+                        <div class="form-group">
+                            {{ form | crispy }}
+                            <button class="btn btn-success" type="submit">Post</button>
+                            <a class="btn btn-danger" href="{% url 'personal_page' user.username %}">Cancel</a>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+{% endblock %}

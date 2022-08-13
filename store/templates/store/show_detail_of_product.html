@@ -1,0 +1,37 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block content %}
+    <header>
+        <title>Products</title>
+    </header>
+    <body>
+        <center>
+            <div class="card bg-dark" style="width: 20rem;">
+                <img src="{{detail_of_product.product_image.url}}" class="card-img-top">
+                <div class="card-body">
+                    <h2 class="card-title" style="color: rgb(255, 255, 255);">{{detail_of_product.title}}</h2>
+                    <h5 class="card-text" style="color: rgb(255, 255, 255);">{{detail_of_product.price}}$</h5>
+                    <p class="card-text" style="color: rgb(255, 255, 255);">{{detail_of_product.description}}</p>
+                    <p class="card-text" style="color: rgb(255, 255, 255);">{{detail_of_product.inventory}} Remains</p>
+                    <p class="card-text" style="color: rgb(255, 255, 255);">{{detail_of_product.collection}} Collection</p>
+                    <p class="card-text" style="color: rgb(255, 255, 255);">{{total_likes}} Likes</p>
+                    <form action="{%url 'like_product' detail_of_product.pk current_page%}" method="post">
+                        {%csrf_token%}
+
+                        {%if user.is_authenticated%}
+                            {%if liked%}
+                                <button class="btn btn-primary btn-sm" type="submit" name="product_id" value="{{detail_of_product.id}}">Liked</button>
+                            {%else%}
+                                <button class="btn btn-secondary btn-sm" type="submit" name="product_id" value="{{detail_of_product.id}}">Like</button>
+                            {%endif%}
+                        {%else%}
+                        <small style="color: rgb(255, 255, 255);"><a class="card-link" href="{%url 'login'%}">Login</a> to like this product</small>
+                        {%endif%}
+                    </form>
+                    <br>
+                    <a class="btn btn-primary btn-block" href="/store/products/?page={{current_page}}">Back</a>
+                </div>
+            </div>
+        </center>
+    </body>
+{% endblock %}

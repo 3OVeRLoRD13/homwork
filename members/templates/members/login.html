@@ -1,0 +1,30 @@
+{% extends 'home/base.html' %}
+{% block content %}
+    <header>
+        <title>Login</title>
+    </header>
+
+    <body>
+        <div class="shadow p-4 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
+            <h1>Login Here</h1>
+            <br>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <form>
+                    <div class="mb-3">
+                        <label for="exampleInputEmail1" class="form-label">Username:</label>
+                        <input type="text" class="form-control" name="username" aria-describedby="emailHelp" placeholder="Username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Password:</label>
+                        <input type="password" class="form-control" name="password" placeholder="Password">
+                    </div>
+                    <input type="submit" value="Login" class="btn btn-success">
+                    <a class="btn btn-danger" href="{% url 'home' %}" role="button">Cancel</a>
+                </form>
+            </form>
+            <br>
+            <p>Forgot your password ? <a class="card-link" href="{% url 'password_reset' %}" role="button">Reset your password</a></p>
+        </div>
+    </body>
+{% endblock %}

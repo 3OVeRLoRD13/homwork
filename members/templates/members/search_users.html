@@ -1,0 +1,31 @@
+{% extends 'home/base.html' %}
+{% block content %}
+    <header>
+        <title>Search</title>
+    </header>
+
+    <body>
+        <center>
+            {% if searched %}
+                <h1 style="color: rgb(255, 255, 255);">You Searched for {{ searched }}</h1>
+                <br>
+                {% for searched_user in searched_users %}
+                <div class="card bg-dark" style="width: 16rem;">
+                    <center>
+                        <br>
+                        <img class="rounded-circle account-img" src="{{searched_user.userprofile.profile_image.url}}" width="100" height="100">
+                    </center>
+                    <h4 class="card-title"><a href="{% url 'personal_page' searched_user.username %}" class="card-link">@{{searched_user.username}}</a></h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-dark" style="color: rgb(255, 255, 255);">{{searched_user.first_name}} {{searched_user.last_name}}</li>
+                        <li class="list-group-item bg-dark" style="color: rgb(255, 255, 255);">{{searched_user.userprofile.bio}}</li>
+                    </ul>
+                </div>
+                <br>
+                {% endfor %}
+            {% else %}
+                <h1 style="color: rgb(255, 255, 255);">You Searched for ...</h1>
+            {% endif %}
+        </center>
+    </body>
+{% endblock %}

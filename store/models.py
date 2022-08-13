@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+# Promotion model in database
 class Promotion(models.Model):
     description = models.TextField()
     discount = models.PositiveIntegerField()
@@ -12,6 +13,7 @@ class Promotion(models.Model):
     __repr__ = __str__
 
 
+# Collection model in database
 class Collection(models.Model):
     title = models.CharField(max_length=255)
     # circular dependency
@@ -30,6 +32,7 @@ class Collection(models.Model):
     __repr__ = __str__
 
 
+# Product model in database
 class Product(models.Model):
     title = models.CharField(max_length=100)  # varchar(100)
     product_image = models.ImageField(default='product_default.png', upload_to='product_pics', null=True, blank=True)
