@@ -13,6 +13,19 @@
                     <div class="shadow p-4 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
                         <h2 style="color: rgb(255, 255, 255);">Are you sure you want to delete the post ?</h2>
                         <br>
+                        <center>
+                            {% if not post.has_default_image %}
+                                <div class="card border-secondary bg-dark">
+                                    <center>
+                                        <br>
+                                        <img src="{{post.post_image.url}}" class="img-fluid" width="414" height="414">
+                                    </center>
+                                    <br>
+                                </div>    
+                            {% endif %}
+                            <p class="card-text" style="color: rgb(255, 255, 255);">{{post.text}}</p>
+                        </center>
+                        <br>
                         <div class="form-group">
                             <button class="btn btn-danger" type="submit">Yes, Delete</button>
                             <a class="btn btn-primary" href="{% url 'personal_page' user.username %}">Cancel</a>

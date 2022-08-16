@@ -16,6 +16,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # Application definition
 
@@ -29,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'crispy_forms',
     'django_cleanup',
+    "debug_toolbar",
     'home',
     'members',
     'store',
@@ -44,9 +48,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-ROOT_URLCONF = 'OnlineShop.urls'
+ROOT_URLCONF = 'JoyHub.urls'
 
 TEMPLATES = [
     {
@@ -64,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'OnlineShop.wsgi.application'
+WSGI_APPLICATION = 'JoyHub.wsgi.application'
 
 
 # Database

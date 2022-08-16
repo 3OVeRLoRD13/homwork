@@ -1,4 +1,4 @@
-"""OnlineShop URL Configuration
+"""JoyHub URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -22,6 +22,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Admin page path
+    path('__debug__/', include('debug_toolbar.urls')),
     path('', views.home, name='home'),  # Home path
     path('members/', include('django.contrib.auth.urls')),  # Members authentication path
     path('members/', include('members.urls')),  # Members path

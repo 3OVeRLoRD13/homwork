@@ -1,12 +1,26 @@
 {% extends 'home/base.html' %}
+{% load static %}
 {% block content %}
     <header>
-        <title>Online Shop</title>
+        <title>JoyHub</title>
     </header>
 
     <body>
         <center>
-            <h1 style="color: rgb(255, 255, 255);">This is the Home page</h1>
+            <div class="shadow p-3 card text-white bg-dark mb-3">
+                <img src="{% static 'home/images/jh.png' %}" class="card-img-top" width="700" height="500">
+                <div class="card-body">
+                    <h1 class="card-title">Welcome to the JoyHub</h1>
+                    <p class="card-text"><b>JoyHub</b> is a place where you can post, discuss, chat and socialize with other users</p>
+                    <p class="card-text">Enjoy freedom of speech and have fun with your friends !</p>
+                    <small>
+                        {% if not user.is_authenticated %}
+                            <p class="card-text">Join us now !</p>
+                            <b><a class="card-link" href="{% url 'register' %}">Register</a><a class="card-link" href="{% url 'login' %}">Login</a></b>
+                        {% endif %} 
+                    </small>
+                </div>
+            </div>
         </center>
     </body>
 {% endblock %}

@@ -10,7 +10,7 @@ from django.contrib import admin, messages
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ["id", "title", "product_count", "last_update", "created_at"]
     list_display_links = ["id"]
-    # list_editable = ["title"]
+    list_editable = ["title"]
     search_fields = ["title"]
 
     def get_queryset(self, request):
@@ -29,12 +29,13 @@ class CollectionAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ["id", "title", "price", "inventory", "collection", "inventory_status", "last_update", "created_at"]
     list_display_links = ["id"]
-    list_editable = ["price", "inventory"]
+    list_editable = ["title", "price", "inventory", "collection"]
     search_fields = ["id", "collection", "title"]
     actions = ["clear_inventory"]
     list_select_related = ["collection"]
-    list_per_page: int = 10
-    list_max_show_all: int = 500
+    ordering = ["inventory", "-inventory"]
+    list_per_page = 10
+    list_max_show_all = 500
 
     # create form
     fields = ["title", "product_image", "slug", "description", "price", "inventory", "collection"]

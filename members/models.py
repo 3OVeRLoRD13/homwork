@@ -29,8 +29,8 @@ class UserProfile(models.Model):
         super().save(*args, **kwargs)
         img = Image.open(self.profile_image.path)
 
-        if img.height > 256 or img.width > 256:
-            output_size = (256, 256)
+        if img.height > 128 or img.width > 128:
+            output_size = (128, 128)
             img.thumbnail(output_size)
             img.save(self.profile_image.path)
 
@@ -38,22 +38,44 @@ class UserProfile(models.Model):
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField(max_length=255, null=True, blank=True)
+    post_image = models.ImageField(default='post_image_default.png', upload_to='posts_pics', null=True, blank=True)
     edited_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return f"{self.author}" + " Post"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        img = Image.open(self.post_image.path)
 
+        if img.height > 512 or img.width > 512 and not img.is_animated:
+            try:
+                output_size = (img.width / 2, img.height / 2)
+                img.thumbnail(output_size)
+                img.save(self.post_image.path)
+            except:
+                return
+    
+    def has_default_image(self):
+        if self.post_image.url == '/media/post_image_default.png':
+            return True
+        return False
+    
     def get_absolute_url(self):
         return reverse('post_detail_view', kwargs={'pk': self.pk})
-
-    def get_edit_date(self):
+    
+    # Return humanize date example(1 day and 3 hours ago) 
+    def humanized_edit_date(self):
         return humanize.naturaltime(self.edited_at)
 
-    def get_created_at_date(self):
+    # Return humanize date example(1 day and 3 hours ago)
+    def humanized_created_at(self):
         return humanize.naturaltime(self.created_at)
 
+    # Check if a post is edited or not
     def is_edited(self):
         if self.created_at != self.edited_at:
             return True
         return False
+    

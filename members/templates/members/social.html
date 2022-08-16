@@ -3,27 +3,38 @@
     <header>
         <title>Social</title>
     </header>
-
     <body>
         <center>
             {% if user.is_authenticated %}
                 <h1 style="color: rgb(255, 255, 255);">Social</h1>
                 <hr style="background-color: rgb(255, 255, 255);">
                 {% for post in posts %}
-                    <div class="card bg-dark" style="width: 37rem;">
-                        <div class="media content-section bg-dark" style="width: 36rem;">
+                    <div class="shadow p-2 card bg-dark" style="width: 28rem;">
+                        <div class="media content-section bg-dark">
                             {% if post.author.userprofile.profile_image %}
                                 <img class="rounded-circle article-img" src="{{post.author.userprofile.profile_image.url}}" width="64" height="64">
                             {% else %}
                                 <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
                             {% endif %}    
-                            <small style="color: rgb(255, 255, 255);">{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a> <small class="text-muted">{{post.created_at|date:"F d, Y"}} ({{post.get_created_at_date}})</small></small>
                             {% if post.is_edited %}
+                                <small style="color: rgb(255, 255, 255);">{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a></small>
                                 <small style="color: rgb(52, 58, 64);">_</small>
-                                <small><small><small class="text-muted"> edited({{post.get_edit_date}})</small></small></small>
+                                <small><small class="text-muted"> edited ({{post.humanized_edit_date}})</small></small>
+                            {% else %}
+                            <small style="color: rgb(255, 255, 255);">{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a><small class="text-muted"> {{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>  
                             {% endif %}
                         </div>
+                        {% if not post.has_default_image %}
+                            <br>
+                            <center>
+                                <img src="{{post.post_image.url}}" class="img-fluid img-thumbnail bg-dark" width="414" height="414">
+                            </center> 
+                            <br>   
+                        {% endif %}
                         <p class="card-text" style="color: rgb(255, 255, 255);">{{post.text}}</p>
+                        {% if post.is_edited %}
+                            <small class="text-muted"><small>{{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>
+                        {% endif %}
                         {% if post.author == user %}
                             <small>
                                 <a class="nav-link active dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">

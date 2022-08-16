@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
-from .forms import RegisterUserForm, UserForm, ProfileForm
+from .forms import RegisterUserForm, UserForm, ProfileForm, PostForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
@@ -113,14 +113,19 @@ class PersonalPageListView(LoginRequiredMixin, ListView):
     template_name = 'members/personal_page.html'
     context_object_name = 'posts'
     paginate_by = 5
-
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super(PersonalPageListView, self).get_context_data(*args,**kwargs)
+        context['user_personal_page'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        return context
+    
     def get_queryset(self):
         user_personal_page = get_object_or_404(User, username=self.kwargs.get('username'))
         return Post.objects.filter(author=user_personal_page).order_by('-created_at')
 
 
-# Show user posts via class based view -----------------------------------------------------
-class PostListView(ListView):
+# Show user posts in social page via class based view ----------------------------------------
+class PostListView(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'members/social.html'
     context_object_name = 'posts'
@@ -129,7 +134,7 @@ class PostListView(ListView):
 
 
 # View detail of posts via class based view ------------------------------------------------
-class PostDetailView(DetailView):
+class PostDetailView(LoginRequiredMixin, DetailView):
     model = Post
     template_name = 'members/post_detail_view.html'
     context_object_name = 'detail_post'
@@ -138,10 +143,11 @@ class PostDetailView(DetailView):
 # Create posts via class based view -------------------------------------------------------
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['text']
+    fields = ['post_image', 'text']
     template_name = 'members/post_form.html'
 
     def get_success_url(self):
+        messages.success(self.request, "Your Post Was Created Successfully !")
         return reverse_lazy('personal_page', args=[self.request.user.username])
 
     def form_valid(self, form):

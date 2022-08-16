@@ -5,7 +5,7 @@
     </header>
 
     <body>
-        <div class="shadow p-4 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
+        <div class="shadow p-3 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
             <h1>Login Here</h1>
             <br>
             <form action="" method="POST">
@@ -25,6 +25,7 @@
             </form>
             <br>
             <p>Forgot your password ? <a class="card-link" href="{% url 'password_reset' %}" role="button">Reset your password</a></p>
+            <p>Don't have any account ? <a class="card-link" href="{% url 'register' %}" role="button">Sign up</a></p>
         </div>
     </body>
 {% endblock %}

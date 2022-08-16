@@ -1,7 +1,7 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from django import forms
-from .models import UserProfile
+from .models import UserProfile, Post
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
 
 class RegisterUserForm(UserCreationForm):
@@ -14,6 +14,13 @@ class RegisterUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+
+    # Check for entered email to be unique
+    def clean_email(self):
+        entered_email = self.cleaned_data.get('email')
+        if User.objects.filter(email=entered_email).exists():
+            raise forms.ValidationError("This email is already been registered !")
+        return entered_email 
 
     def __init__(self, *args, **kwargs):
         super(RegisterUserForm, self).__init__(*args, **kwargs)
@@ -50,3 +57,9 @@ class ProfileForm(forms.ModelForm):
         self.fields['bio'].widget.attrs['class'] = 'form-control'
         self.fields['bio'].widget.attrs['placeholder'] = 'bio'
         self.fields['profile_image'].widget.attrs['class'] = 'form-control'
+
+
+class PostForm(forms.ModelForm): 
+    class Meta:
+        model = Post
+        fields = ['post_image', 'text']
