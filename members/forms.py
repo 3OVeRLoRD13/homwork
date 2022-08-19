@@ -53,9 +53,9 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.fields['birth_date'].widget.attrs['class'] = 'form-control'
-        self.fields['birth_date'].widget.attrs['placeholder'] = 'Birth date'
+        self.fields['birth_date'].widget.attrs['placeholder'] = 'Birth date, Example : (2002-02-03)'
         self.fields['bio'].widget.attrs['class'] = 'form-control'
-        self.fields['bio'].widget.attrs['placeholder'] = 'bio'
+        self.fields['bio'].widget.attrs['placeholder'] = 'Tell to the world who you really are !'
         self.fields['profile_image'].widget.attrs['class'] = 'form-control'
 
 

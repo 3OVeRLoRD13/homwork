@@ -1,17 +1,39 @@
 from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Post
 from django.contrib import messages
+from .models import Post, FollowersCount
 from django.contrib.auth.models import User
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
-from .forms import RegisterUserForm, UserForm, ProfileForm, PostForm
+from .forms import RegisterUserForm, UserForm, ProfileForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
+
+# follow via function based view ----------------------------------------------------------------------
+@login_required(login_url='login')
+def follow(request):
+    if request.method == "POST":
+        follower = request.POST['follower']
+        _user = request.POST['_user']
+        
+        if FollowersCount.objects.filter(follower=follower, user=_user).first():
+            delete_follower = FollowersCount.objects.get(follower=follower, user=_user)
+            delete_follower.delete()
+            return redirect(reverse_lazy('personal_page', args=[_user]))
+        else:
+            new_follower = FollowersCount.objects.create(follower=follower, user=_user)
+            new_follower.save()
+            return redirect(reverse_lazy('personal_page', args=[_user]))
+    else:
+        return redirect(reverse_lazy('personal_page', args=[_user]))
+
+
 # Search existing users and show them in site -----------------------------------------------
+@login_required(login_url='login')
 def search_users(request):
     if request.method == "POST":
         searched = request.POST['searched']
@@ -60,6 +82,7 @@ def register_user(request):
     else:
         form = RegisterUserForm()
     return render(request, 'members/register_user.html', {'form': form, })
+
 
 
 # Change user password via class based view (Not reset password) ---------------------------
@@ -116,7 +139,21 @@ class PersonalPageListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, *args, **kwargs):
         context = super(PersonalPageListView, self).get_context_data(*args,**kwargs)
-        context['user_personal_page'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        follower = self.request.user.username
+        _user = get_object_or_404(User, username=self.kwargs.get('username'))
+        
+        if FollowersCount.objects.filter(follower=follower, user=_user).filter():
+            is_follow = True
+        else:
+            is_follow = False
+            
+        user_followers_count = FollowersCount.objects.filter(user=_user).count()
+        user_following_count = FollowersCount.objects.filter(follower=_user).count()
+        
+        context['user_personal_page'] = _user
+        context['is_follow'] = is_follow
+        context['user_followers_count'] = user_followers_count
+        context['user_following_count'] = user_following_count
         return context
     
     def get_queryset(self):
@@ -125,12 +162,32 @@ class PersonalPageListView(LoginRequiredMixin, ListView):
 
 
 # Show user posts in social page via class based view ----------------------------------------
-class PostListView(LoginRequiredMixin, ListView):
+class SocialPostListView(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'members/social.html'
     context_object_name = 'posts'
     ordering = ['-created_at']
     paginate_by = 5
+
+
+# Show user following posts in club page via class based view ----------------------------------------
+class ClubPostListView(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'members/club.html'
+    context_object_name = 'posts'
+    ordering = ['-created_at']
+    paginate_by = 5
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super(ClubPostListView, self).get_context_data(*args,**kwargs) 
+        user_following_list = []
+        _user_following = FollowersCount.objects.filter(follower=self.request.user)
+
+        for _users in _user_following:
+            user_following_list.append(_users.user)
+
+        context['user_following_list'] = user_following_list
+        return context
 
 
 # View detail of posts via class based view ------------------------------------------------

@@ -3,29 +3,31 @@
     <header>
         <title>Login</title>
     </header>
-
     <body>
-        <div class="shadow p-3 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
-            <h1>Login Here</h1>
-            <br>
-            <form action="" method="POST">
-                {% csrf_token %}
-                <form>
-                    <div class="mb-3">
-                        <label for="exampleInputEmail1" class="form-label">Username:</label>
-                        <input type="text" class="form-control" name="username" aria-describedby="emailHelp" placeholder="Username">
-                    </div>
-                    <div class="mb-3">
-                        <label for="exampleInputPassword1" class="form-label">Password:</label>
-                        <input type="password" class="form-control" name="password" placeholder="Password">
-                    </div>
-                    <input type="submit" value="Login" class="btn btn-success">
-                    <a class="btn btn-danger" href="{% url 'home' %}" role="button">Cancel</a>
+        <center>
+            <div class="shadow p-3 mb-5 bg-dark rounded text-light" style="width: 28rem;">
+                <h1>Login Here</h1>
+                <hr style="background-color: rgb(255, 255, 255);">
+                <br>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <form>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="username" aria-describedby="emailHelp" placeholder="Username">
+                        </div>
+                        <br>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" name="password" placeholder="Password">
+                        </div>
+                        <br>
+                        <input type="submit" value="Login" class="btn btn-success btn-block">
+                        <a class="btn btn-primary btn-block" href="{% url 'home' %}" role="button">Cancel</a>
+                    </form>
                 </form>
-            </form>
-            <br>
-            <p>Forgot your password ? <a class="card-link" href="{% url 'password_reset' %}" role="button">Reset your password</a></p>
-            <p>Don't have any account ? <a class="card-link" href="{% url 'register' %}" role="button">Sign up</a></p>
-        </div>
+                <br>
+                <p>Forgot your password ? <a class="card-link" href="{% url 'password_reset' %}">Reset your password</a></p>
+                <p>Don't have any account ? <a class="card-link" href="{% url 'register' %}">Sign up</a></p>
+            </div>
+        </center>
     </body>
 {% endblock %}

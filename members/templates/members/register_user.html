@@ -7,13 +7,14 @@
     <body>
         <div class="shadow p-3 mb-5 bg-dark rounded" style="color: rgb(255, 255, 255);">
             <h1>Register Here</h1>
+            <hr style="background-color: rgb(255, 255, 255);">
             <br>
             <form action="{% url 'register' %}" method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <br>
                 <input type="submit" value="Register" class="btn btn-success">
-                <a class="btn btn-danger" href="{% url 'home' %}" role="button">Cancel</a>
+                <a class="btn btn-primary" href="{% url 'home' %}" role="button">Cancel</a>
             </form>
             <br>
             <p>Already have an account ? <a class="card-link" href="{% url 'login' %}" role="button">Login</a></p>

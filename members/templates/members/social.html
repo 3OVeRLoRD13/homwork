@@ -41,8 +41,8 @@
                                 more
                                 </a>
                                 <div class="dropdown-menu bg-dark">
-                                    <a class="dropdown-item bg-dark" style="color: rgb(23, 162, 184);" href="{% url 'post_edit_view' post.id %}">Edit</a>
-                                    <a class="dropdown-item bg-dark" style="color: rgb(220, 53, 69);" href="{% url 'post_delete_view' post.id %}">Delete</a>
+                                    <a class="dropdown-item bg-dark text-success" href="{% url 'post_edit_view' post.id %}">Edit</a>
+                                    <a class="dropdown-item bg-dark text-danger" href="{% url 'post_delete_view' post.id %}">Delete</a>
                                 </div>
                             </small>
                         {% else %}

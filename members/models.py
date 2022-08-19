@@ -17,8 +17,8 @@ class UserProfile(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return f"{self.user.username} Profile"
-
+        return f"{self.user.username} Profile"            
+    
     def get_last_update_date(self):
         return humanize.naturaltime(self.last_update)
 
@@ -29,33 +29,46 @@ class UserProfile(models.Model):
         super().save(*args, **kwargs)
         img = Image.open(self.profile_image.path)
 
-        if img.height > 128 or img.width > 128:
-            output_size = (128, 128)
+        if img.height > 512 or img.width > 512:
+            output_size = (img.width / 2, img.height / 2)
             img.thumbnail(output_size)
             img.save(self.profile_image.path)
 
 
+class FollowersCount(models.Model):
+    follower = models.CharField(max_length=255)
+    user = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.user
+
+
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author_username = models.CharField(max_length=255)
     text = models.TextField(max_length=255, null=True, blank=True)
     post_image = models.ImageField(default='post_image_default.png', upload_to='posts_pics', null=True, blank=True)
     edited_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.author}" + " Post"
     
     def save(self, *args, **kwargs):
+        self.author_username = str(self.author)
         super().save(*args, **kwargs)
+        
         img = Image.open(self.post_image.path)
 
-        if img.height > 512 or img.width > 512 and not img.is_animated:
-            try:
-                output_size = (img.width / 2, img.height / 2)
-                img.thumbnail(output_size)
-                img.save(self.post_image.path)
-            except:
-                return
+        if img.height > 1024 or img.width > 1024 and not img.is_animated:
+            output_size = (img.width / 2, img.height / 2)
+            img.thumbnail(output_size)
+            img.save(self.post_image.path)
+        
+        #super(Post, self).save(*args, **kwargs)
     
     def has_default_image(self):
         if self.post_image.url == '/media/post_image_default.png':
@@ -78,4 +91,3 @@ class Post(models.Model):
         if self.created_at != self.edited_at:
             return True
         return False
-    

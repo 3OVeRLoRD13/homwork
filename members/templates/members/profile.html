@@ -15,12 +15,20 @@
                     {% endif %}  
                 </center>
                 <div class="card-body">
-                  <h5 style="color: rgb(255, 255, 255);" class="card-title">@{{user.username}}</h5>
-                  <p style="color: rgb(255, 255, 255);" class="card-text">{{user.userprofile.bio}}</p>
+                    <h4 style="color: rgb(255, 255, 255);" class="card-title"><a class="card-link" href="{% url 'personal_page' user.username %}">@{{user.username}}</a></h4>
+                    {% if user.userprofile.bio %}
+                        <p style="color: rgb(255, 255, 255);" class="card-text">{{user.userprofile.bio}}</p>
+                    {% else %}
+                        <p class="card-text text-warning">You didn't <a class="cart-link" href="{% url 'edit_profile' %}">set</a> your Bio</p>
+                    {% endif %}
                 </div>
                 <ul class="list-group list-group-flush">
                     <p style="color: rgb(255, 255, 255);" class="card-text">Name : {{user.first_name}} {{user.last_name}}</p>
-                    <p style="color: rgb(255, 255, 255);" class="card-text">Birth date : {{user.userprofile.birth_date}}</p>
+                    {% if user.userprofile.birth_date %}
+                        <p style="color: rgb(255, 255, 255);" class="card-text">Birth date : {{user.userprofile.birth_date}}</p>
+                    {% else %}
+                        <p class="card-text text-warning">You didn't <a class="cart-link" href="{% url 'edit_profile' %}">set</a> your Birth date</p>
+                    {% endif %}
                     <p style="color: rgb(255, 255, 255);" class="card-text">Email : {{user.email}}</p>
                     <small class="text-muted">Joined at : {{user.date_joined|date:"F d, Y"}} ({{user.userprofile.get_created_at_date}})</small>
                 </ul>
@@ -30,6 +38,9 @@
                     <a class="btn btn-primary btn-block" href="{% url 'edit_profile' %}">Edit Profile</a>
                     <a class="btn btn-primary btn-block" href="{% url 'change_password' %}">Change Password</a>
                     <a class="btn btn-primary btn-block" href="{% url 'logout' %}">Logout</a>
+                    {% if user.is_superuser %}
+                        <a class="btn btn-primary btn-block" href="{% url 'admin:index' %}">Admin Panel</a>
+                    {% endif %}
                 </div>
             </div>
         </center>

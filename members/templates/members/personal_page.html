@@ -20,20 +20,31 @@
                         <h5 style="color: rgb(255, 255, 255);" class="card-title"><a href="{% url 'personal_page' user_personal_page %}">@{{user_personal_page}}</a></h5>
                         <p style="color: rgb(255, 255, 255);" class="card-text">{{user_personal_page.userprofile.bio}}</p>
                     </div>
+                    <div>
+                        <hr>
+                        <h5 class="card-text text-light">{{page_obj.paginator.count}} Posts | {{user_followers_count}} Followers | {{user_following_count}} Following</h5>
+                        <br>
+                        {% if view.kwargs.username == user.username %}
+                            <a class="btn btn-primary" href="{% url 'create_post' %}">New Post</a>
+                        {% else %}
+                            <form action="{% url 'follow' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{user.username}}" name="follower">
+                                <input type="hidden" value="{{user_personal_page}}" name="_user">
+                                {% if is_follow %}
+                                    <button type="submit" class="btn btn-secondary">Unfollow</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-primary">Follow</button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    </div>   
+                    <br>
                     <ul class="list-group list-group-flush">
                         <br>
                         <small class="text-muted">Joined at : {{user_personal_page.date_joined|date:"F d, Y"}} ({{user_personal_page.userprofile.get_created_at_date}})</small> 
                     </ul>
                 </div>
-                <hr style="background-color: rgb(255, 255, 255);">
-                <div class="shadow card bg-dark" style="width: 28rem;">
-                    <br>
-                    <h4 style="color: rgb(255, 255, 255);" class="card-title">Total Posts : {{page_obj.paginator.count}}</h4>
-                    <br>
-                    {% if view.kwargs.username == user.username %}
-                        <a class="btn btn-primary" href="{% url 'create_post' %}">New Post</a>
-                    {% endif %}
-                </div>   
                 <hr style="background-color: rgb(255, 255, 255);">
                 {% for post in posts %}
                         <div class="shadow p-2 card bg-dark" style="width: 28rem;">
@@ -68,8 +79,8 @@
                                     more
                                     </a>
                                     <div class="dropdown-menu bg-dark">
-                                        <a class="dropdown-item bg-dark" style="color: rgb(23, 162, 184);" href="{% url 'post_edit_view' post.id %}">Edit</a>
-                                        <a class="dropdown-item bg-dark" style="color: rgb(220, 53, 69);" href="{% url 'post_delete_view' post.id %}">Delete</a>
+                                        <a class="dropdown-item bg-dark text-success" href="{% url 'post_edit_view' post.id %}">Edit</a>
+                                        <a class="dropdown-item bg-dark text-danger" href="{% url 'post_delete_view' post.id %}">Delete</a>
                                     </div>
                                 </small>
                             {% else %}
