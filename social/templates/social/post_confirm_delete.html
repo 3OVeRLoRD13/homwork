@@ -1,0 +1,39 @@
+{% extends 'home/base.html' %}
+{% block content %}
+    <header>
+        <title>Delete Post</title>
+    </header>
+
+    <body>
+        <div class="content-section">
+            <form method="POST">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <h1 class="border-bottom mb-4">Delete Post</h1>
+                    <hr>
+                    <div class="shadow-lg p-4 mb-5 bg-light rounded">
+                        <h2>Are you sure you want to delete the post ?</h2>
+                        <br>
+                        <center>
+                            {% if not post.has_default_image %}
+                                <div class="card border-secondary bg-light">
+                                    <center>
+                                        <br>
+                                        <img src="{{post.post_image.url}}" class="img-fluid" width="414" height="414">
+                                    </center>
+                                    <br>
+                                </div>    
+                            {% endif %}
+                            <p class="card-text text-dark">{{post.text}}</p>
+                        </center>
+                        <br>
+                        <div class="form-group">
+                            <button class="btn btn-danger" type="submit">Yes, Delete</button>
+                            <a class="btn btn-primary" href="{% url 'personal_page' user.username %}">Cancel</a>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+{% endblock %}

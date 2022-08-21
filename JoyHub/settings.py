@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     'home',
     'members',
-    'store',
+    'social',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

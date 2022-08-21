@@ -1,0 +1,25 @@
+{% extends 'home/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <header>
+        <title>Create Post</title>
+    </header>
+    <body>
+        <div class="content-section">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <h1 class="border-bottom mb-4">Create Post</h1>
+                    <hr>
+                    <div class="shadow-lg p-4 mb-5 bg-light rounded">
+                        <div class="form-group">
+                            {{ form | crispy }}
+                            <button class="btn btn-success" type="submit">Post</button>
+                            <a class="btn btn-primary" href="{% url 'personal_page' user.username %}">Cancel</a>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+{% endblock %}

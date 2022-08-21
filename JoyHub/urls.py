@@ -26,7 +26,7 @@ urlpatterns = [
     path('', views.home, name='home'),  # Home path
     path('members/', include('django.contrib.auth.urls')),  # Members authentication path
     path('members/', include('members.urls')),  # Members path
-    path('store/', include('store.urls')),  # Store path
+    path('social/', include('social.urls')),  # Store path
     # Reset password view ------------------------------------------------
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='members/password_reset.html'),
          name='password_reset'),  # Reset password path

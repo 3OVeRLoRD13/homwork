@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserProfile, Post
+from .models import UserProfile
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -40,9 +40,9 @@ class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['first_name'].widget.attrs['class'] = 'form-control'
-        self.fields['first_name'].widget.attrs['placeholder'] = 'first_name'
+        self.fields['first_name'].widget.attrs['placeholder'] = 'first name'
         self.fields['last_name'].widget.attrs['class'] = 'form-control'
-        self.fields['last_name'].widget.attrs['placeholder'] = 'last_name'
+        self.fields['last_name'].widget.attrs['placeholder'] = 'last name'
 
 
 class ProfileForm(forms.ModelForm):    
@@ -57,9 +57,3 @@ class ProfileForm(forms.ModelForm):
         self.fields['bio'].widget.attrs['class'] = 'form-control'
         self.fields['bio'].widget.attrs['placeholder'] = 'Tell to the world who you really are !'
         self.fields['profile_image'].widget.attrs['class'] = 'form-control'
-
-
-class PostForm(forms.ModelForm): 
-    class Meta:
-        model = Post
-        fields = ['post_image', 'text']

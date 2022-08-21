@@ -5,9 +5,9 @@
     </header>
     <body>
         <center>
-            <div class="shadow p-3 mb-5 bg-dark rounded text-light" style="width: 28rem;">
-                <h1>Login Here</h1>
-                <hr style="background-color: rgb(255, 255, 255);">
+            <div class="shadow-lg p-3 mb-5 bg-light rounded text-light" style="width: 28rem;">
+                <h1 class="card-title text-dark">Login Here</h1>
+                <hr>
                 <br>
                 <form action="" method="POST">
                     {% csrf_token %}
@@ -25,8 +25,8 @@
                     </form>
                 </form>
                 <br>
-                <p>Forgot your password ? <a class="card-link" href="{% url 'password_reset' %}">Reset your password</a></p>
-                <p>Don't have any account ? <a class="card-link" href="{% url 'register' %}">Sign up</a></p>
+                <p class="card-text text-dark">Don't have any account ? <a class="card-link" href="{% url 'register' %}">Sign up</a></p>
+                <p class="card-text text-dark">Forgot your password ? <a class="card-link" href="{% url 'password_reset' %}">Reset your password</a></p>
             </div>
         </center>
     </body>

@@ -5,7 +5,7 @@
     </header>
     <body>
         <center>
-            <div class="shadow card bg-dark" style="width: 28rem;">
+            <div class="shadow-lg card bg-light" style="width: 28rem;">
                 <center>
                     <br>
                     {% if user.userprofile.profile_image %}
@@ -15,21 +15,21 @@
                     {% endif %}  
                 </center>
                 <div class="card-body">
-                    <h4 style="color: rgb(255, 255, 255);" class="card-title"><a class="card-link" href="{% url 'personal_page' user.username %}">@{{user.username}}</a></h4>
+                    <h4 class="card-title"><a class="card-link" href="{% url 'personal_page' user.username %}">@{{user.username}}</a></h4>
                     {% if user.userprofile.bio %}
-                        <p style="color: rgb(255, 255, 255);" class="card-text">{{user.userprofile.bio}}</p>
+                        <p class="card-text">{{user.userprofile.bio}}</p>
                     {% else %}
-                        <p class="card-text text-warning">You didn't <a class="cart-link" href="{% url 'edit_profile' %}">set</a> your Bio</p>
+                        <p class="card-text text-danger">You didn't <a class="cart-link" href="{% url 'edit_profile' %}">set</a> your Bio</p>
                     {% endif %}
                 </div>
                 <ul class="list-group list-group-flush">
-                    <p style="color: rgb(255, 255, 255);" class="card-text">Name : {{user.first_name}} {{user.last_name}}</p>
+                    <p class="card-text">Name : {{user.first_name}} {{user.last_name}}</p>
                     {% if user.userprofile.birth_date %}
-                        <p style="color: rgb(255, 255, 255);" class="card-text">Birth date : {{user.userprofile.birth_date}}</p>
+                        <p class="card-text">Birth date : {{user.userprofile.birth_date}}</p>
                     {% else %}
-                        <p class="card-text text-warning">You didn't <a class="cart-link" href="{% url 'edit_profile' %}">set</a> your Birth date</p>
+                        <p class="card-text text-danger">You didn't <a class="cart-link" href="{% url 'edit_profile' %}">set</a> your Birth date</p>
                     {% endif %}
-                    <p style="color: rgb(255, 255, 255);" class="card-text">Email : {{user.email}}</p>
+                    <p class="card-text">Email : {{user.email}}</p>
                     <small class="text-muted">Joined at : {{user.date_joined|date:"F d, Y"}} ({{user.userprofile.get_created_at_date}})</small>
                 </ul>
                 <div class="card-body">

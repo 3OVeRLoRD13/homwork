@@ -1,5 +1,5 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <a class="navbar-brand" href="{% url 'home' %}">
     <img src="{% static 'home/images/JoyHubIcon.png' %}" width="32" height="32" class="d-inline-block align-top">
     JoyHub
@@ -9,9 +9,6 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNavDropdown">
     <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="{% url 'ShowProducts' %}">Products</a>
-      </li>
       {% if user.is_authenticated %}
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="{% url 'social' %}">Social</a>
@@ -23,11 +20,11 @@
         <a class="nav-link active dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
           Welcome {{user.username}} !
         </a>
-        <div class="dropdown-menu bg-dark">
-          <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'create_post' %}">New Post</a>
-          <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'personal_page' user.username %}">Your Page</a>
-          <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'profile' %}">Profile</a>
-          <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'logout' %}">Logout</a>
+        <div class="dropdown-menu bg-light">
+          <a class="dropdown-item bg-light" href="{% url 'create_post' %}">New Post</a>
+          <a class="dropdown-item bg-light" href="{% url 'personal_page' user.username %}">Your Page</a>
+          <a class="dropdown-item bg-light" href="{% url 'profile' %}">Profile</a>
+          <a class="dropdown-item bg-light" href="{% url 'logout' %}">Logout</a>
         </div>
       </li>
       {% else %}
@@ -35,19 +32,19 @@
         <a class="nav-link active dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
           Join us now !
         </a>
-        <div class="dropdown-menu bg-dark">
-          <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'register' %}">Register</a>
-          <a style="color: rgb(255, 255, 255);" class="dropdown-item bg-dark" href="{% url 'login' %}">Login</a>
+        <div class="dropdown-menu bg-light">
+          <a class="dropdown-item bg-light" href="{% url 'register' %}">Register</a>
+          <a class="dropdown-item bg-light" href="{% url 'login' %}">Login</a>
         </div>
       </li>
       {% endif %}
     </ul>
   </div>
-  <nav class="navbar navbar-dark bg-dark">
+  <nav class="navbar navbar-light bg-light">
     <form class="form-inline" method="post" action="{% url 'search_users' %}">
       {% csrf_token %}
       <input class="form-control mr-sm-2" name="searched" type="search" placeholder="Type usename" aria-label="Search">
-      <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+      <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
     </form>
   </nav>
 </nav>

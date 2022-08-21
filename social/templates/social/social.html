@@ -1,0 +1,80 @@
+{% extends 'home/base.html' %}
+{% block content %}
+    <header>
+        <title>Social</title>
+    </header>
+    <body>
+        <center>
+            {% if user.is_authenticated %}
+                <h1>Social</h1>
+                <hr>
+                {% for post in posts %}
+                    <div class="shadow-lg p-2 card bg-light" style="width: 28rem;">
+                        <div class="media content-section bg-light">
+                            {% if post.author.userprofile.profile_image %}
+                                <img class="rounded-circle article-img" src="{{post.author.userprofile.profile_image.url}}" width="64" height="64">
+                            {% else %}
+                                <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
+                            {% endif %}    
+                            {% if post.is_edited %}
+                                <small>{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a></small>
+                                <small style="color: rgb(255, 255, 255);">_</small>
+                                <small><small class="text-muted"> edited ({{post.humanized_edit_date}})</small></small>
+                            {% else %}
+                            <small>{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a><small class="text-muted"> {{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>  
+                            {% endif %}
+                        </div>
+                        {% if not post.has_default_image %}
+                            <br>
+                            <center>
+                                <img src="{{post.post_image.url}}" class="img-fluid img-thumbnail bg-light" width="414" height="414">
+                                <small><small><a class="card-link" href="{{post.post_image.url}}" download>Download image</a></small></small>
+                            </center>  
+                        {% endif %}
+                        <p class="card-text text-dark">{{post.text}}</p>
+                        {% if post.is_edited %}
+                            <small class="text-muted"><small>{{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>
+                        {% endif %}
+                        {% if post.author == user %}
+                            <small>
+                                <a class="nav-link active dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
+                                more
+                                </a>
+                                <div class="dropdown-menu bg-light">
+                                    <a class="dropdown-item bg-light text-primary" href="{% url 'post_edit_view' post.id %}">Edit</a>
+                                    <a class="dropdown-item bg-light text-danger" href="{% url 'post_delete_view' post.id %}">Delete</a>
+                                </div>
+                            </small>
+                        {% else %}
+                            <br>
+                        {% endif %}
+                    </div>
+                    <br>
+                {% endfor %}
+                {% if is_paginated %}
+
+                    {% if page_obj.has_previous %}
+                        <a class="btn btn-outline-primary mb-4" href="?page=1">&laquoFirst page</a>
+                        <a class="btn btn-outline-primary mb-4" href="?page={{ page_obj.previous_page_number }}">&laquoPrevious</a>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <a class="btn btn-primary mb-4" href="?page={{ num }}">{{ num }}</a>
+                        {% elif num > page_obj.number|add:'-3' and  num < page_obj.number|add:'3' %}
+                            <a class="btn btn-outline-primary mb-4" href="?page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a class="btn btn-outline-primary mb-4" href="?page={{ page_obj.next_page_number }}">Next&raquo</a>
+                        <a class="btn btn-outline-primary mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last page&raquo</a>
+                    {% endif %}
+
+                {% endif %}
+            {% else %}
+                <h1><a class="card-link" href="{%url 'login'%}">Login</a> to see this page</h1>
+            {% endif %}
+        </center>
+    </body>
+{% endblock %}

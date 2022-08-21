@@ -1,43 +1,36 @@
 from django.urls import reverse_lazy
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Post, FollowersCount
 from django.contrib.auth.models import User
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import RegisterUserForm, UserForm, ProfileForm
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-
-
-# follow via function based view ----------------------------------------------------------------------
-@login_required(login_url='login')
-def follow(request):
-    if request.method == "POST":
-        follower = request.POST['follower']
-        _user = request.POST['_user']
-        
-        if FollowersCount.objects.filter(follower=follower, user=_user).first():
-            delete_follower = FollowersCount.objects.get(follower=follower, user=_user)
-            delete_follower.delete()
-            return redirect(reverse_lazy('personal_page', args=[_user]))
-        else:
-            new_follower = FollowersCount.objects.create(follower=follower, user=_user)
-            new_follower.save()
-            return redirect(reverse_lazy('personal_page', args=[_user]))
-    else:
-        return redirect(reverse_lazy('personal_page', args=[_user]))
 
 
 # Search existing users and show them in site -----------------------------------------------
 @login_required(login_url='login')
 def search_users(request):
+    paginate_by = 24
+    
     if request.method == "POST":
         searched = request.POST['searched']
         searched_users = User.objects.filter(username__contains=searched)
+        
+        paginator = Paginator(searched_users, paginate_by)        
+        page = request.GET.get('page')
+
+        try:
+            searched_users = paginator.page(page)
+        except PageNotAnInteger:
+            searched_users = paginator.page(1)
+        except EmptyPage:
+            searched_users = paginator.page(paginator.num_pages)
+        
         return render(request, 'members/search_users.html', {'searched': searched, 'searched_users': searched_users})
     else:
         return render(request, 'members/search_users.html', {})
@@ -128,122 +121,3 @@ class ProfileUpdateView(LoginRequiredMixin, TemplateView):
 
     def get_object(self):
         return self.request.user
-
-
-# View user personal page via class based view ---------------------------------------------
-class PersonalPageListView(LoginRequiredMixin, ListView):
-    model = Post
-    template_name = 'members/personal_page.html'
-    context_object_name = 'posts'
-    paginate_by = 5
-    
-    def get_context_data(self, *args, **kwargs):
-        context = super(PersonalPageListView, self).get_context_data(*args,**kwargs)
-        follower = self.request.user.username
-        _user = get_object_or_404(User, username=self.kwargs.get('username'))
-        
-        if FollowersCount.objects.filter(follower=follower, user=_user).filter():
-            is_follow = True
-        else:
-            is_follow = False
-            
-        user_followers_count = FollowersCount.objects.filter(user=_user).count()
-        user_following_count = FollowersCount.objects.filter(follower=_user).count()
-        
-        context['user_personal_page'] = _user
-        context['is_follow'] = is_follow
-        context['user_followers_count'] = user_followers_count
-        context['user_following_count'] = user_following_count
-        return context
-    
-    def get_queryset(self):
-        user_personal_page = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Post.objects.filter(author=user_personal_page).order_by('-created_at')
-
-
-# Show user posts in social page via class based view ----------------------------------------
-class SocialPostListView(LoginRequiredMixin, ListView):
-    model = Post
-    template_name = 'members/social.html'
-    context_object_name = 'posts'
-    ordering = ['-created_at']
-    paginate_by = 5
-
-
-# Show user following posts in club page via class based view ----------------------------------------
-class ClubPostListView(LoginRequiredMixin, ListView):
-    model = Post
-    template_name = 'members/club.html'
-    context_object_name = 'posts'
-    ordering = ['-created_at']
-    paginate_by = 5
-    
-    def get_context_data(self, *args, **kwargs):
-        context = super(ClubPostListView, self).get_context_data(*args,**kwargs) 
-        user_following_list = []
-        _user_following = FollowersCount.objects.filter(follower=self.request.user)
-
-        for _users in _user_following:
-            user_following_list.append(_users.user)
-
-        context['user_following_list'] = user_following_list
-        return context
-
-
-# View detail of posts via class based view ------------------------------------------------
-class PostDetailView(LoginRequiredMixin, DetailView):
-    model = Post
-    template_name = 'members/post_detail_view.html'
-    context_object_name = 'detail_post'
-
-
-# Create posts via class based view -------------------------------------------------------
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields = ['post_image', 'text']
-    template_name = 'members/post_form.html'
-
-    def get_success_url(self):
-        messages.success(self.request, "Your Post Was Created Successfully !")
-        return reverse_lazy('personal_page', args=[self.request.user.username])
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-
-# Edit posts via class based view --------------------------------------------------------
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    fields = ['text']
-    template_name = 'members/edit_post_form.html'
-
-    def get_success_url(self):
-        messages.success(self.request, "Your Post Was Edited Successfully !")
-        return reverse_lazy('personal_page', args=[self.request.user.username])
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.author:
-            return True
-        return False
-
-
-# Delete posts via class based view --------------------------------------------------------
-class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Post
-    template_name = 'members/post_confirm_delete.html'
-
-    def get_success_url(self):
-        messages.success(self.request, "Your Post Was Deleted Successfully !")
-        return reverse_lazy('personal_page', args=[self.request.user.username])
-
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.author:
-            return True
-        return False

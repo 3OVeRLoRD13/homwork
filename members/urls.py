@@ -12,14 +12,4 @@ urlpatterns = [
     # Profile view --------------------------------------------------------------------------
     path('profile/', ProfileView.as_view(), name='profile'),  # Users profile
     path('edit_profile/', ProfileUpdateView.as_view(), name='edit_profile'),  # Edit users profile
-    path('personal_page/<str:username>/', PersonalPageListView.as_view(), name='personal_page'),  # Users personal page
-    path('follow/', follow, name='follow'),
-    # Post views ----------------------------------------------------------------------------
-    path('social/', SocialPostListView.as_view(), name='social'),  # Social path
-    path('social/club/', ClubPostListView.as_view(), name='club'),  # Clube path
-    path('social/post/new/', PostCreateView.as_view(), name='create_post'),  # Create post
-    path('social/post/<int:pk>/', PostDetailView.as_view(), name='post_detail_view'),  # Detail post
-    path('social/post/<int:pk>/edit/', PostUpdateView.as_view(), name='post_edit_view'),  # Edit post
-    path('social/post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete_view'),  # Delete post
-    # ---------------------------------------------------------------------------------------
 ]
