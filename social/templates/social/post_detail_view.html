@@ -2,27 +2,80 @@
 {% block content %}
     <header>
         <title>Post</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </header>
-
     <body>
         <center>
             {% if user.is_authenticated %}
-                <h1 style="color: rgb(255, 255, 255);">Post</h1>
-                <hr style="background-color: rgb(255, 255, 255);">
-                <br>
-                <div class="card bg-dark" style="width: 31rem;">
-                    <br>
-                    <p style="color: rgb(255, 255, 255);">{{detail_post.text}}</p>
-                    <br>
-                    <br>
-                    {% if object.author == user %}
-                        <a class="btn btn-primary btn-sm mt-1" href="{% url 'post_edit_view' object.id %}">Edit</a>
-                        <a class="btn btn-danger btn-sm mt-1" href="{% url 'post_delete_view' object.id %}">Delete</a>
-                    {% endif %}
+                <h1>Post</h1>
+                <hr>
+                <div class="shadow-lg p-2 card bg-light" style="width: 28rem;">
+                    <div class="media content-section bg-light">
+                        {% if object.author.userprofile.profile_image %}
+                                <img class="rounded-circle article-img" src="{{object.author.userprofile.profile_image.url}}" width="64" height="64">
+                        {% else %}
+                                <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
+                        {% endif %}        
+                        {% if object.is_edited %}
+                            <small class="text-dark">{{object.author.first_name}} {{object.author.last_name}} <a href="{% url 'personal_page' object.author %}">@{{object.author}}</a></small>
+                            <small style="color: rgb(255, 255, 255);">_</small>
+                            <small><small class="text-muted"> edited ({{object.humanized_edit_date}})</small></small>
+                        {% else %}   
+                            <small class="text-dark">{{object.author.first_name}} {{object.author.last_name}} <a href="{% url 'personal_page' object.author %}">@{{object.author}}</a><small class="text-muted"> {{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small> 
+                        {% endif %}
+                        </div>
+                        {% if not object.has_default_image %}
+                            <br>
+                            <center>
+                                <img src="{{object.post_image.url}}" class="img-fluid img-thumbnail bg-light" width="400" height="400">
+                                <p><a class="card-link" href="{{object.post_image.url}}" download><i class="fa fa-download" style="color:blue"></i></a></p>
+                            </center>
+                        {% endif %}
+                        <br>
+                        <p class="card-text text-dark">{{object.text}}</p>
+                        {% if object.is_edited %}
+                            <small class="text-muted"><small>{{object.created_at|date:"F, d, Y"}} ({{object.humanized_created_at}})</small></small>
+                        {% endif %}
+                        {% if object.author == user %}
+                            <small>
+                                <a class="nav-link active dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
+                                more
+                                </a>
+                                <div class="dropdown-menu bg-light">
+                                    <a class="dropdown-item bg-light text-primary" href="{% url 'post_edit_view' object.id %}">Edit</a>
+                                    <a class="dropdown-item bg-light text-danger" href="{% url 'post_delete_view' object.id %}">Delete</a>
+                                </div>
+                            </small>
+                        {% endif %}
+                        <div class="d-flex flex-row">
+                            <form action="{% url 'like_post' object.pk %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{request.path}}">
+                                <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                    {% if user in object.likes.all%}
+                                        <i class="fa fa-thumbs-up" style="color:blue"> {{object.likes.all.count}}</i>
+                                    {% else %}
+                                        <i class="fa fa-thumbs-o-up" style="color:blue"> {{object.likes.all.count}}</i>
+                                    {% endif %}                                
+                                </button> 
+                            </form>
+                            <form action="{% url 'dislike_post' object.pk %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{request.path}}">
+                                <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                    {% if user in object.dislikes.all%}
+                                        <i class="fa fa-thumbs-down" style="color:blue"> {{object.dislikes.all.count}}</i>
+                                    {% else %}
+                                        <i class="fa fa-thumbs-o-down" style="color:blue"> {{object.dislikes.all.count}}</i>
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <hr style="background-color: rgb(255, 255, 255);">
+                <hr>
             {% else %}
-                <h1 style="color: rgb(255, 255, 255);"><a class="card-link" href="{%url 'login'%}">Login</a> to see this page</h1>
+                <h1><a class="card-link" href="{%url 'login'%}">Login</a> to see this page</h1>
             {% endif %}
         </center>
     </body>

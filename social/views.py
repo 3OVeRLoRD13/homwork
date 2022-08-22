@@ -1,12 +1,13 @@
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Post, UserFollowing
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 
 
 # follow via function based view ----------------------------------------------------------------------
@@ -26,6 +27,58 @@ def follow(request):
             return redirect(reverse_lazy('personal_page', args=[_user]))
     else:
         return redirect(reverse_lazy('personal_page', args=[_user]))
+
+
+# like post via class based view ----------------------------------------------------------------------
+class AddLikes(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        post = Post.objects.get(pk=pk)
+        
+        is_dislike = False
+        if post.dislikes.filter(id=request.user.id).exists():
+            is_dislike = True
+        
+        if is_dislike:
+            post.dislikes.remove(request.user)
+        
+        is_liked = False
+        if post.likes.filter(id=request.user.id).exists():
+            is_liked = True
+        
+        if not is_liked:
+            post.likes.add(request.user)
+            
+        if is_liked:
+            post.likes.remove(request.user)
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+        
+
+# dislike post via class based view -------------------------------------------------------------------
+class AddDisLikes(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        post = Post.objects.get(pk=pk)
+        
+        is_liked = False
+        if post.likes.filter(id=request.user.id).exists():
+            is_liked = True
+        
+        if is_liked:
+            post.likes.remove(request.user)
+        
+        is_dislike = False
+        if post.dislikes.filter(id=request.user.id).exists():
+            is_dislike = True
+        
+        if not is_dislike:
+            post.dislikes.add(request.user)
+            
+        if is_dislike:
+            post.dislikes.remove(request.user)
+        
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
 
 
 # View user personal page via class based view ---------------------------------------------
@@ -52,6 +105,7 @@ class PersonalPageListView(LoginRequiredMixin, ListView):
         context['is_follow'] = is_follow
         context['user_followers'] = user_followers
         context['user_following'] = user_following
+        
         return context
 
     def get_queryset(self):

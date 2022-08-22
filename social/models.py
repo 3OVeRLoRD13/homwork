@@ -23,9 +23,10 @@ class UserFollowing(models.Model):
 
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    author_username = models.CharField(max_length=255)
     text = models.TextField(max_length=255, null=True, blank=True)
     post_image = models.ImageField(default='post_image_default.png', upload_to='posts_pics', null=True, blank=True)
+    likes = models.ManyToManyField(User, blank=True, related_name='likes')
+    dislikes = models.ManyToManyField(User, blank=True, related_name='dislikes')
     edited_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     
@@ -42,7 +43,6 @@ class Post(models.Model):
         return f"{self.author}" + " Post"
     
     def save(self, *args, **kwargs):
-        self.author_username = str(self.author)
         super().save(*args, **kwargs)
         
         img = Image.open(self.post_image.path)
@@ -51,7 +51,6 @@ class Post(models.Model):
             output_size = (img.width / 2, img.height / 2)
             img.thumbnail(output_size)
             img.save(self.post_image.path)
-        
     
     def has_default_image(self):
         if self.post_image.url == '/media/post_image_default.png':

@@ -2,6 +2,7 @@
 {% block content %}
     <header>
         <title>Social</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </header>
     <body>
         <center>
@@ -28,7 +29,7 @@
                             <br>
                             <center>
                                 <img src="{{post.post_image.url}}" class="img-fluid img-thumbnail bg-light" width="414" height="414">
-                                <small><small><a class="card-link" href="{{post.post_image.url}}" download>Download image</a></small></small>
+                                <p><a class="card-link" href="{{post.post_image.url}}" download><i class="fa fa-download" style="color:blue"></i></a></p>
                             </center>  
                         {% endif %}
                         <p class="card-text text-dark">{{post.text}}</p>
@@ -45,9 +46,30 @@
                                     <a class="dropdown-item bg-light text-danger" href="{% url 'post_delete_view' post.id %}">Delete</a>
                                 </div>
                             </small>
-                        {% else %}
-                            <br>
                         {% endif %}
+                        <div class="d-flex flex-row">
+                            <form action="{% url 'like_post' post.pk %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{request.path}}">
+                                <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                    {% if user in post.likes.all%}
+                                        <i class="fa fa-thumbs-up" style="color:blue"> {{post.likes.all.count}}</i>
+                                    {% else %}
+                                        <i class="fa fa-thumbs-o-up" style="color:blue"> {{post.likes.all.count}}</i>
+                                    {% endif %}                                </button> 
+                            </form>
+                            <form action="{% url 'dislike_post' post.pk %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{request.path}}">
+                                <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                    {% if user in post.dislikes.all%}
+                                        <i class="fa fa-thumbs-down" style="color:blue"> {{post.dislikes.all.count}}</i>
+                                    {% else %}
+                                        <i class="fa fa-thumbs-o-down" style="color:blue"> {{post.dislikes.all.count}}</i>
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     <br>
                 {% endfor %}

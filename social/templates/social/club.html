@@ -2,6 +2,7 @@
 {% block content %}
     <header>
         <title>Club</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </header>
     <body>
         <center>
@@ -10,34 +11,55 @@
                 <p class="text-dark">Posts from people you follow</p>
                 <hr>
                 {% for post in user_followings_posts_list %}
-                        {{post.username}}
-                        <div class="shadow p-2 card bg-light" style="width: 28rem;">
-                            <div class="media content-section bg-light">
-                                {% if post.author.userprofile.profile_image %}
-                                    <img class="rounded-circle article-img" src="{{post.author.userprofile.profile_image.url}}" width="64" height="64">
-                                {% else %}
-                                    <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
-                                {% endif %}    
-                                {% if post.is_edited %}
-                                    <small class="text-dark">{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a></small>
-                                    <small style="color: rgb(255, 255, 255);">_</small>
-                                    <small><small class="text-muted"> edited ({{post.humanized_edit_date}})</small></small>
-                                {% else %}
+                    <div class="shadow p-2 card bg-light" style="width: 28rem;">
+                        <div class="media content-section bg-light">
+                            {% if post.author.userprofile.profile_image %}
+                                <img class="rounded-circle article-img" src="{{post.author.userprofile.profile_image.url}}" width="64" height="64">
+                            {% else %}
+                                <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
+                            {% endif %}    
+                            {% if post.is_edited %}
+                                <small class="text-dark">{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a></small>
+                                <small style="color: rgb(255, 255, 255);">_</small>
+                                <small><small class="text-muted"> edited ({{post.humanized_edit_date}})</small></small>
+                            {% else %}
                                 <small>{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a><small class="text-muted"> {{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>  
-                                {% endif %}
+                            {% endif %}
                             </div>
                             {% if not post.has_default_image %}
                                 <br>
                                 <center>
                                     <img src="{{post.post_image.url}}" class="img-fluid img-thumbnail bg-light" width="414" height="414">
-                                    <small><small><a class="card-link" href="{{post.post_image.url}}" download>Download image</a></small></small>
+                                    <p><a class="card-link" href="{{post.post_image.url}}" download><i class="fa fa-download" style="color:blue"></i></a></p>
                                 </center> 
                             {% endif %}
                             <p class="card-text text-dark">{{post.text}}</p>
                             {% if post.is_edited %}
                                 <small class="text-muted"><small>{{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>
                             {% endif %}
-                            <br>
+                            <div class="d-flex flex-row">
+                                <form action="{% url 'like_post' post.pk %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{request.path}}">
+                                    <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                        {% if user in post.likes.all%}
+                                            <i class="fa fa-thumbs-up" style="color:blue"> {{post.likes.all.count}}</i>
+                                        {% else %}
+                                            <i class="fa fa-thumbs-o-up" style="color:blue"> {{post.likes.all.count}}</i>
+                                        {% endif %}                                </button> 
+                                </form>
+                                <form action="{% url 'dislike_post' post.pk %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{request.path}}">
+                                    <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                        {% if user in post.dislikes.all%}
+                                            <i class="fa fa-thumbs-down" style="color:blue"> {{post.dislikes.all.count}}</i>
+                                        {% else %}
+                                            <i class="fa fa-thumbs-o-down" style="color:blue"> {{post.dislikes.all.count}}</i>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                         <br>
                 {% endfor %}
