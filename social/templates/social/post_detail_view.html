@@ -1,82 +1,194 @@
 {% extends 'home/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
 {% block content %}
     <header>
         <title>Post</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     </header>
     <body>
         <center>
-            {% if user.is_authenticated %}
-                <h1>Post</h1>
-                <hr>
-                <div class="shadow-lg p-2 card bg-light" style="width: 28rem;">
-                    <div class="media content-section bg-light">
-                        {% if object.author.userprofile.profile_image %}
-                                <img class="rounded-circle article-img" src="{{object.author.userprofile.profile_image.url}}" width="64" height="64">
-                        {% else %}
-                                <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
-                        {% endif %}        
-                        {% if object.is_edited %}
-                            <small class="text-dark">{{object.author.first_name}} {{object.author.last_name}} <a href="{% url 'personal_page' object.author %}">@{{object.author}}</a></small>
-                            <small style="color: rgb(255, 255, 255);">_</small>
-                            <small><small class="text-muted"> edited ({{object.humanized_edit_date}})</small></small>
-                        {% else %}   
-                            <small class="text-dark">{{object.author.first_name}} {{object.author.last_name}} <a href="{% url 'personal_page' object.author %}">@{{object.author}}</a><small class="text-muted"> {{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small> 
-                        {% endif %}
-                        </div>
-                        {% if not object.has_default_image %}
-                            <br>
-                            <center>
-                                <img src="{{object.post_image.url}}" class="img-fluid img-thumbnail bg-light" width="400" height="400">
-                                <p><a class="card-link" href="{{object.post_image.url}}" download><i class="fa fa-download" style="color:blue"></i></a></p>
-                            </center>
-                        {% endif %}
+            <h1>Post</h1>
+            <hr>
+            <div class="shadow-lg p-2 card bg-light" style="width: 28rem;">
+                <div class="media content-section bg-light">
+                    {% if post.author.userprofile.profile_image %}
+                            <img class="rounded-circle article-img" src="{{post.author.userprofile.profile_image.url}}" width="64" height="64">
+                    {% else %}
+                            <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
+                    {% endif %}        
+                    {% if post.is_edited %}
+                        <small class="text-dark">{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a></small>
+                        <small style="color: rgb(255, 255, 255);">_</small>
+                        <small><small class="text-muted"> edited ({{post.humanized_edit_date}})</small></small>
+                    {% else %}   
+                        <small class="text-dark">{{post.author.first_name}} {{post.author.last_name}} <a href="{% url 'personal_page' post.author %}">@{{post.author}}</a><small class="text-muted"> {{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small> 
+                    {% endif %}
+                    </div>
+                    {% if not post.has_default_image %}
                         <br>
-                        <p class="card-text text-dark">{{object.text}}</p>
-                        {% if object.is_edited %}
-                            <small class="text-muted"><small>{{object.created_at|date:"F, d, Y"}} ({{object.humanized_created_at}})</small></small>
+                        <center>
+                            <img src="{{post.post_image.url}}" class="img-fluid img-thumbnail bg-light" width="400" height="400">
+                            <p><a class="card-link" href="{{post.post_image.url}}" download><i class="material-icons" style="color:black">file_download</i></a></p>
+                        </center>
+                    {% endif %}
+                    <br>
+                    <p class="card-text text-dark">{{post.text}}</p>
+                    {% if post.is_edited %}
+                        <small class="text-muted"><small>{{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>
+                    {% endif %}
+                    <div class="d-flex">
+                        <form action="{% url 'like_post' post.pk %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{request.path}}">
+                            <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                {% if user in post.likes.all%}
+                                    <a class="text-danger"><i class="material-icons" style="font-size:20px;">favorite</i>{{post.likes.all.count}}</a>
+                                {% else %}
+                                    <a class="text-secondary"><i class="material-icons" style="font-size:20px;">favorite</i>{{post.likes.all.count}}</a>
+                                {% endif %}
+                            </button> 
+                        </form>
+                        <form action="{% url 'dislike_post' post.pk %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{request.path}}">
+                            <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
+                                {% if user in post.dislikes.all%}
+                                    <a class="text-dark"><i class="material-icons" style="font-size:20px;">thumb_down</i>{{post.dislikes.all.count}}</a>
+                                {% else %}
+                                    <a class="text-secondary"><i class="material-icons" style="font-size:20px;">thumb_down</i>{{post.dislikes.all.count}}</a>
+                                {% endif %}
+                            </button>
+                        </form>
+                        <a class="text-secondary" href="{% url 'post_detail_view' post.pk %}"><i class="material-icons" style="font-size:20px;">sms</i>3</a>
+                        {% if post.author == user %}
+                            <div class="ml-auto p-2">
+                                <a class="text-primary" href="{% url 'post_edit_view' post.id %}"><i class="material-icons" style="font-size:20px;">edit</i></a>
+                                <a class="text-danger" href="{% url 'post_delete_view' post.id %}"><i class="material-icons" style="font-size:20px;">delete</i></a>
+                            </div>
                         {% endif %}
-                        {% if object.author == user %}
-                            <small>
-                                <a class="nav-link active dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
-                                more
-                                </a>
-                                <div class="dropdown-menu bg-light">
-                                    <a class="dropdown-item bg-light text-primary" href="{% url 'post_edit_view' object.id %}">Edit</a>
-                                    <a class="dropdown-item bg-light text-danger" href="{% url 'post_delete_view' object.id %}">Delete</a>
-                                </div>
-                            </small>
-                        {% endif %}
-                        <div class="d-flex flex-row">
-                            <form action="{% url 'like_post' object.pk %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{request.path}}">
-                                <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
-                                    {% if user in object.likes.all%}
-                                        <i class="fa fa-thumbs-up" style="color:blue"> {{object.likes.all.count}}</i>
-                                    {% else %}
-                                        <i class="fa fa-thumbs-o-up" style="color:blue"> {{object.likes.all.count}}</i>
-                                    {% endif %}                                
-                                </button> 
-                            </form>
-                            <form action="{% url 'dislike_post' object.pk %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{request.path}}">
-                                <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
-                                    {% if user in object.dislikes.all%}
-                                        <i class="fa fa-thumbs-down" style="color:blue"> {{object.dislikes.all.count}}</i>
-                                    {% else %}
-                                        <i class="fa fa-thumbs-o-down" style="color:blue"> {{object.dislikes.all.count}}</i>
-                                    {% endif %}
-                                </button>
-                            </form>
-                        </div>
                     </div>
                 </div>
+            </div>
+            <hr>
+            <center>
+                <div class="content-section"  style="width: 28rem;">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            <div class="shadow-lg p-4 mb-5 bg-light rounded">
+                                <div class="form-group">
+                                    {{ form | crispy }}
+                                    <button class="btn btn-success btn-sm" type="submit">Submit</button>
+                                    {% comment %} <a class="btn btn-primary" href="{% url 'personal_page' post.author.username %}">Cancel</a> {% endcomment %}
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
                 <hr>
-            {% else %}
-                <h1><a class="card-link" href="{%url 'login'%}">Login</a> to see this page</h1>
-            {% endif %}
+                {% for comment in comments %}
+                    {% if comment.is_parent %}
+                        <div class="shadow-lg p-2 card bg-light" style="width: 28rem;">
+                            <div class="media content-section bg-light">
+                                {% if comment.author.userprofile.profile_image %}
+                                    <img class="rounded-circle article-img" src="{{comment.author.userprofile.profile_image.url}}" width="64" height="64">
+                                {% else %}
+                                    <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
+                                {% endif %}                                      <small style="color: rgb(255, 255, 255);">_</small>
+                                {% if comment.is_edited %}
+                                    <small class="text-dark">{{comment.author.first_name}} {{comment.author.last_name}} <a href="{% url 'personal_page' comment.author %}">@{{comment.author}}</a></small>
+                                    <small style="color: rgb(255, 255, 255);">_</small>
+                                    <small><small class="text-muted"> edited ({{comment.humanized_edit_date}})</small></small>
+                                {% else %}   
+                                    <small class="text-dark">{{comment.author.first_name}} {{comment.author.last_name}} <a href="{% url 'personal_page' comment.author %}">@{{comment.author}}</a><small class="text-muted"> {{comment.created_at|date:"F, d, Y"}} ({{comment.humanized_created_at}})</small></small> 
+                                {% endif %}
+                            </div>
+                            {% if not comment.has_default_image %}
+                                <br>
+                                <center>
+                                    <img src="{{comment.comment_image.url}}" class="img-fluid img-thumbnail bg-light" width="400" height="400">
+                                    <p><a class="card-link" href="{{comment.comment_image.url}}" download><i class="material-icons" style="color:black">file_download</i></a></p>
+                                </center>
+                            {% endif %}
+                            <p class="card-text text-dark">{{comment.text}}</p>
+                            {% if comment.is_edited %}
+                                <small class="text-muted"><small>{{comment.created_at|date:"F, d, Y"}} ({{comment.humanized_created_at}})</small></small>
+                            {% endif %}
+                            <div class="d-flex">
+                                <form action="{% url 'like_comment' post.pk comment.pk %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{request.path}}">
+                                    <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ comment.id }}">
+                                        {% if user in comment.likes.all%}
+                                            <a class="text-danger"><i class="material-icons" style="font-size:20px;">favorite</i>{{comment.likes.all.count}}</a>
+                                        {% else %}
+                                            <a class="text-secondary"><i class="material-icons" style="font-size:20px;">favorite</i>{{comment.likes.all.count}}</a>
+                                        {% endif %}
+                                    </button> 
+                                </form>
+                                <form action="{% url 'dislike_comment' post.pk comment.pk %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{request.path}}">
+                                    <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ comment.id }}">
+                                        {% if user in comment.dislikes.all%}
+                                            <a class="text-dark"><i class="material-icons" style="font-size:20px;">thumb_down</i>{{comment.dislikes.all.count}}</a>
+                                        {% else %}
+                                            <a class="text-secondary"><i class="material-icons" style="font-size:20px;">thumb_down</i>{{comment.dislikes.all.count}}</a>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                {% if comment.author == user %}
+                                    <div class="ml-auto p-2">
+                                        <a class="text-danger" href="{% url 'comment_delete_view' post.id comment.id %}"><i class="material-icons" style="font-size:20px;">delete</i></a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <button class="text-primary" style="background-color:transparent; border:none; box-shadow:none;" onclick="commentRplyToggle('{{comment.pk}}')">reply</button>
+                        </div>
+                        <div class="shadow-lg p-2 card bg-light d-none" style="width: 28rem; height: 12rem;"  id="{{comment.pk}}">
+                            <form action="{% url 'reply_comment' post.pk comment.pk %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {{ form | crispy }}
+                                <button class="btn btn-success btn-sm" type="submit">Submit</button>
+                            </form>
+                        </div>
+                        <div class="d-none" id="test">
+                            {% for child_comment in comment.children %}
+                                <div class="shadow-lg p-2 card bg-light" style="width: 28rem; margin-left:2rem;">
+                                    <div class="media content-section bg-light">
+                                        {% if child_comment.author.userprofile.profile_image %}
+                                            <img class="rounded-circle article-img" src="{{child_comment.author.userprofile.profile_image.url}}" width="64" height="64">
+                                        {% else %}
+                                            <img class="rounded-circle article-img" src="/media/default.png" width="64" height="64">
+                                        {% endif %}                                      <small style="color: rgb(255, 255, 255);">_</small>
+                                        {% if child_comment.is_edited %}
+                                            <small class="text-dark">{{child_comment.author.first_name}} {{child_comment.author.last_name}} <a href="{% url 'personal_page' child_comment.author %}">@{{child_comment.author}}</a></small>
+                                            <small style="color: rgb(255, 255, 255);">_</small>
+                                            <small><small class="text-muted"> edited ({{child_comment.humanized_edit_date}})</small></small>
+                                        {% else %}   
+                                            <small class="text-dark">{{child_comment.author.first_name}} {{child_comment.author.last_name}} <a href="{% url 'personal_page' child_comment.author %}">@{{child_comment.author}}</a><small class="text-muted"> {{child_comment.created_at|date:"F, d, Y"}} ({{child_comment.humanized_created_at}})</small></small> 
+                                        {% endif %}
+                                    </div>
+                                    {% if not child_comment.has_default_image %}
+                                        <br>
+                                        <center>
+                                            <img src="{{child_comment.comment_image.url}}" class="img-fluid img-thumbnail bg-light" width="400" height="400">
+                                            <p><a class="card-link" href="{{child_comment.comment_image.url}}" download><i class="material-icons" style="color:black">file_download</i></a></p>
+                                        </center>
+                                    {% endif %}
+                                    <p class="card-text text-dark">{{child_comment.text}}</p>
+                                    {% if child_comment.is_edited %}
+                                        <small class="text-muted"><small>{{child_comment.created_at|date:"F, d, Y"}} ({{child_comment.humanized_created_at}})</small></small>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            </center>
         </center>
+        <script src="{% static 'social/js/social.js' %}" type="text/javascript"></script>  
     </body>
 {% endblock %}

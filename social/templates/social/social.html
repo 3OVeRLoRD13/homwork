@@ -2,7 +2,6 @@
 {% block content %}
     <header>
         <title>Social</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </header>
     <body>
         <center>
@@ -29,46 +28,43 @@
                             <br>
                             <center>
                                 <img src="{{post.post_image.url}}" class="img-fluid img-thumbnail bg-light" width="414" height="414">
-                                <p><a class="card-link" href="{{post.post_image.url}}" download><i class="fa fa-download" style="color:blue"></i></a></p>
+                                <p><a class="card-link" href="{{post.post_image.url}}" download><i class="material-icons" style="color:black">file_download</i></a></p>
                             </center>  
                         {% endif %}
                         <p class="card-text text-dark">{{post.text}}</p>
                         {% if post.is_edited %}
                             <small class="text-muted"><small>{{post.created_at|date:"F, d, Y"}} ({{post.humanized_created_at}})</small></small>
                         {% endif %}
-                        {% if post.author == user %}
-                            <small>
-                                <a class="nav-link active dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
-                                more
-                                </a>
-                                <div class="dropdown-menu bg-light">
-                                    <a class="dropdown-item bg-light text-primary" href="{% url 'post_edit_view' post.id %}">Edit</a>
-                                    <a class="dropdown-item bg-light text-danger" href="{% url 'post_delete_view' post.id %}">Delete</a>
-                                </div>
-                            </small>
-                        {% endif %}
-                        <div class="d-flex flex-row">
+                        <div class="d-flex">
                             <form action="{% url 'like_post' post.pk %}" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="next" value="{{request.path}}">
                                 <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
                                     {% if user in post.likes.all%}
-                                        <i class="fa fa-thumbs-up" style="color:blue"> {{post.likes.all.count}}</i>
+                                        <a class="text-danger"><i class="material-icons" style="font-size:20px;">favorite</i>{{post.likes.all.count}}</a>
                                     {% else %}
-                                        <i class="fa fa-thumbs-o-up" style="color:blue"> {{post.likes.all.count}}</i>
-                                    {% endif %}                                </button> 
+                                        <a class="text-secondary"><i class="material-icons" style="font-size:20px;">favorite</i>{{post.likes.all.count}}</a>
+                                    {% endif %}
+                                </button> 
                             </form>
                             <form action="{% url 'dislike_post' post.pk %}" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="next" value="{{request.path}}">
                                 <button style="background-color:transparent; border:none; box-shadow:none;" typt="submit" name="post_id" value="{{ post.id }}">
                                     {% if user in post.dislikes.all%}
-                                        <i class="fa fa-thumbs-down" style="color:blue"> {{post.dislikes.all.count}}</i>
+                                        <a class="text-dark"><i class="material-icons" style="font-size:20px;">thumb_down</i>{{post.dislikes.all.count}}</a>
                                     {% else %}
-                                        <i class="fa fa-thumbs-o-down" style="color:blue"> {{post.dislikes.all.count}}</i>
+                                        <a class="text-secondary"><i class="material-icons" style="font-size:20px;">thumb_down</i>{{post.dislikes.all.count}}</a>
                                     {% endif %}
                                 </button>
                             </form>
+                            <a class="text-secondary" href="{% url 'post_detail_view' post.pk %}"><i class="material-icons" style="font-size:20px;">sms</i>{{post.commented_post.count}}</a>
+                            {% if post.author == user %}
+                                <div class="ml-auto p-2">
+                                    <a class="text-primary" href="{% url 'post_edit_view' post.id %}"><i class="material-icons" style="font-size:20px;">edit</i></a>
+                                    <a class="text-danger" href="{% url 'post_delete_view' post.id %}"><i class="material-icons" style="font-size:20px;">delete</i></a>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     <br>

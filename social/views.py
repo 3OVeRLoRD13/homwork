@@ -1,10 +1,11 @@
-from django.urls import reverse_lazy, reverse
-from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.shortcuts import redirect, render, get_object_or_404, get_list_or_404
 from django.contrib.auth.decorators import login_required
+from .forms import CommentForm
 from django.contrib import messages
-from .models import Post, UserFollowing
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
+from .models import UserFollowing, Post, Comment
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -81,6 +82,58 @@ class AddDisLikes(LoginRequiredMixin, View):
         return HttpResponseRedirect(next)
 
 
+# like comment via class based view ----------------------------------------------------------------------
+class AddCommentLikes(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        comment = Comment.objects.get(pk=pk)
+        
+        is_dislike = False
+        if comment.dislikes.filter(id=request.user.id).exists():
+            is_dislike = True
+        
+        if is_dislike:
+            comment.dislikes.remove(request.user)
+        
+        is_liked = False
+        if comment.likes.filter(id=request.user.id).exists():
+            is_liked = True
+        
+        if not is_liked:
+            comment.likes.add(request.user)
+            
+        if is_liked:
+            comment.likes.remove(request.user)
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+        
+
+# dislike comment via class based view -------------------------------------------------------------------
+class AddCommentDisLikes(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        comment = Comment.objects.get(pk=pk)
+        
+        is_liked = False
+        if comment.likes.filter(id=request.user.id).exists():
+            is_liked = True
+        
+        if is_liked:
+            comment.likes.remove(request.user)
+        
+        is_dislike = False
+        if comment.dislikes.filter(id=request.user.id).exists():
+            is_dislike = True
+        
+        if not is_dislike:
+            comment.dislikes.add(request.user)
+            
+        if is_dislike:
+            comment.dislikes.remove(request.user)
+        
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
+
 # View user personal page via class based view ---------------------------------------------
 class PersonalPageListView(LoginRequiredMixin, ListView):
     model = Post
@@ -105,7 +158,7 @@ class PersonalPageListView(LoginRequiredMixin, ListView):
         context['is_follow'] = is_follow
         context['user_followers'] = user_followers
         context['user_following'] = user_following
-        
+                
         return context
 
     def get_queryset(self):
@@ -195,7 +248,7 @@ class FollowingListView(LoginRequiredMixin, ListView):
 
     
 
-# Show user following posts in club page via class based view ----------------------------------------
+# Show user following post in club page via class based view -----------------------------------------
 class ClubPostListView(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'social/club.html'
@@ -232,14 +285,44 @@ class ClubPostListView(LoginRequiredMixin, ListView):
         return _user_followings_posts_list
 
 
-# View detail of posts via class based view ------------------------------------------------
+# View detail of post via class based view --------------------------------------------------
 class PostDetailView(LoginRequiredMixin, DetailView):
-    model = Post
-    template_name = 'social/post_detail_view.html'
-    context_object_name = 'detail_post'
+    def post(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
+        form = CommentForm(request.POST)
+        
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.author = request.user
+            new_comment.post = post
+            new_comment.save()
+        
+        comments = Comment.objects.filter(post=post).order_by('-created_at')
+        
+        context = {
+            'post':post,
+            'form':form,
+            'comments':comments,
+        }
+        
+        return render(request, 'social/post_detail_view.html', context)
+    
+    def get(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
+        form = CommentForm()
+        
+        comments = Comment.objects.filter(post=post).order_by('-created_at')
+
+        context = {
+            'post':post,
+            'form':form,
+            'comments':comments,
+        }
+        
+        return render(request, 'social/post_detail_view.html', context)
 
 
-# Create posts via class based view -------------------------------------------------------
+# Create post via class based view ---------------------------------------------------------
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['post_image', 'text']
@@ -254,7 +337,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# Edit posts via class based view --------------------------------------------------------
+# Edit post via class based view ----------------------------------------------------------
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     fields = ['text']
@@ -275,7 +358,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return False
 
 
-# Delete posts via class based view --------------------------------------------------------
+# Delete post via class based view ----------------------------------------------------------
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'social/post_confirm_delete.html'
@@ -289,3 +372,44 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if self.request.user == post.author:
             return True
         return False
+
+
+# list comment replies via class based view --------------------------------------------------------
+class CommentReplyView(LoginRequiredMixin, View):
+    def post(self, request, post_pk, pk, *args, **kwargs):
+        post = get_object_or_404(Post, pk= post_pk)
+        pareent_comment = get_object_or_404(Comment, pk=pk)
+        form = CommentForm(request.POST)
+        
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.author = request.user
+            new_comment.post = post
+            new_comment.parent = pareent_comment
+            new_comment.save()
+        
+        return redirect('post_detail_view', pk=post_pk) 
+    
+
+# Delete comment via class based view --------------------------------------------------------
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    template_name = 'social/comment_confirm_delete.html'
+    
+    def get_context_data(self, **kwargs):
+        post_pk = self.kwargs['post_pk']
+        comment = self.get_object()
+        context = {'post_pk':post_pk, 'comment':comment}        
+        return context
+
+    def get_success_url(self):
+        messages.success(self.request, "Your Comment Was Deleted Successfully !")
+        post_pk = self.kwargs['post_pk']
+        return reverse_lazy('post_detail_view', kwargs={'pk':post_pk})
+    
+    def test_func(self):
+        comment = self.get_object()
+        if self.request.user == comment.author:
+            return True
+        return False
+    

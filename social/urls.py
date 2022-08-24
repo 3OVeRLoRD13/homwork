@@ -20,5 +20,10 @@ urlpatterns = [
     path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail_view'),  # Detail post
     path('post/<int:pk>/edit/', PostUpdateView.as_view(), name='post_edit_view'),  # Edit post
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete_view'),  # Delete post
+    # Comment views -------------------------------------------------------------------------
+    path('post/<int:post_pk>/comment/<int:pk>/reply/', CommentReplyView.as_view(), name='reply_comment'),  # Like comment
+    path('post/<int:post_pk>/comment/<int:pk>/like/', AddCommentLikes.as_view(), name='like_comment'),  # Like comment
+    path('post/<int:post_pk>/comment/<int:pk>/dislike/', AddCommentDisLikes.as_view(), name='dislike_comment'),  # Dislike comment
+    path('post/<int:post_pk>/comment/delete/<int:pk>/', CommentDeleteView.as_view(), name='comment_delete_view'),  # Delete comment
     # ---------------------------------------------------------------------------------------
 ]

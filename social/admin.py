@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, UserFollowing
+from .models import Post, UserFollowing, Comment
 
 
 # View FollowersCount posts in admin page
@@ -14,6 +14,16 @@ class UserFollowingAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ["id", "author", "edited_at", "created_at"]
+    exclude = ('author_username',)
+    list_display_links = ["id"]
+    ordering = ["-created_at", "created_at"]
+    list_per_page = 10
+
+
+# View User Posts in admin page
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ["id", "author", "post", "parent", "edited_at", "created_at"]
     exclude = ('author_username',)
     list_display_links = ["id"]
     ordering = ["-created_at", "created_at"]
