@@ -1,4 +1,5 @@
 from django.urls import reverse
+import uuid
 from PIL import Image
 from django.db import models
 from django.contrib.auth.models import User
@@ -22,6 +23,7 @@ class UserFollowing(models.Model):
 
 
 class Post(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField(max_length=255, null=True, blank=True)
     post_image = models.ImageField(default='post_image_default.png', upload_to='posts_pics', null=True, blank=True)
@@ -78,6 +80,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="commented_post")
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='+')
@@ -90,7 +93,7 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-
+    
     def __cmp__(self, other):
         try:
             return cmp(self.created_at, other.created_at)
